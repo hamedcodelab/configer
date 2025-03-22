@@ -1,4 +1,4 @@
-module github.com/hamed-amini-dev/configer
+module github.com/hamedcodelab/configer
 
 go 1.22.5
 

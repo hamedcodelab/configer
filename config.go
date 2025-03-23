@@ -1,7 +1,9 @@
 package configer
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
+	"io"
 )
 
 type config struct {
@@ -18,28 +20,25 @@ func (c *config) SetConfigType(typ string) {
 	c.viper.SetConfigType(typ)
 }
 
-func (c *config) SetConfigName(name string) {
-	c.viper.SetConfigName(name)
-}
-
-func (c *config) SetConfigPath(path string) {
-	c.viper.AddConfigPath(path)
-}
-
-func (c *config) LoadConfig(str any) error {
-	err := c.viper.ReadInConfig()
-	if err != nil {
-		return err
+func (c *config) LoadConfig(f any) error {
+	if f == nil {
+		return fmt.Errorf("f is nil,must be io.reader")
 	}
-	return c.Unmarshal(str)
+
+	reader, ok := f.(io.Reader)
+	if !ok {
+		return fmt.Errorf("f is not io.reader")
+	}
+
+	return c.viper.ReadConfig(reader)
 }
 
 func (c *config) Unmarshal(rawVal interface{}, opts ...interface{}) error {
 	return c.viper.Unmarshal(rawVal)
 }
 
-func (c *config) ValueOf(key string) Register {
-	v := c.viper.Sub(key)
+func (c *config) SubConfig(SubKeyConfig string) Register {
+	v := c.viper.Sub(SubKeyConfig)
 	if v == nil {
 		return nil
 	}
